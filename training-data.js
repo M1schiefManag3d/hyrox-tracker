@@ -2,9 +2,9 @@
 const TRAINING_DATA = {
   sessionTypes: [
     "Foundation Strength A", "Foundation Strength B", "Strength A", "Strength B",
-    "Engine + Mobility", "Compromised Running", "Engine Intervals",
+    "Engine + Mobility", "Compromised Running", "Tempo Run", "Engine Intervals",
     "Partial Simulation", "Full Simulation", "Grip & Carry Test", "Easy Long Carry",
-    "Existing Run/Spin", "Existing Bike (Kickr)", "Rest/Mobility", "Other"
+    "Existing Bike (Kickr)", "Rest/Mobility", "Other"
   ],
   phases: [
     {
@@ -12,7 +12,7 @@ const TRAINING_DATA = {
       weeks: [1, 2, 3, 4],
       goal: "Movement quality, grip/carry capacity, strength base. Moderate loads, no compromised running, nothing near failure.",
       week: {
-        Mon: "Foundation Strength A", Tue: "Existing run or easy spin", Wed: "Engine + Mobility",
+        Mon: "Foundation Strength A", Tue: "Tempo Run", Wed: "Engine + Mobility",
         Thu: "Existing bike (Kickr)", Fri: "Foundation Strength B",
         Sat: "Grip & Carry Test (Wk1) / Easy long carry (Wk2-4)", Sun: "Rest or light mobility"
       }
@@ -22,7 +22,7 @@ const TRAINING_DATA = {
       weeks: [5, 6, 7, 8],
       goal: "Add load, add compromised running, start blending stations under mild fatigue.",
       week: {
-        Mon: "Strength A (loaded)", Tue: "Existing run or easy spin", Wed: "Compromised Running",
+        Mon: "Strength A (loaded)", Tue: "Tempo Run", Wed: "Compromised Running",
         Thu: "Existing bike (Kickr)", Fri: "Strength B (loaded)",
         Sat: "Engine Intervals (Wk5,7) / Partial Simulation (Wk6,8)", Sun: "Rest or mobility"
       }
@@ -32,7 +32,7 @@ const TRAINING_DATA = {
       weeks: [9, 10, 11, 12],
       goal: "Race-specific intensity, full simulations, then taper.",
       week: {
-        Mon: "Strength A (maintain, lower volume)", Tue: "Existing run or easy spin", Wed: "Compromised Running (race pace)",
+        Mon: "Strength A (maintain, lower volume)", Tue: "Tempo Run (race-pace efforts)", Wed: "Compromised Running (race pace)",
         Thu: "Existing bike (Kickr)", Fri: "Strength B (maintain, lower volume)",
         Sat: "Full Simulation (Wk9,11) / Engine Intervals (Wk10,12 taper)", Sun: "Rest"
       }
@@ -49,18 +49,21 @@ const TRAINING_DATA = {
     if (!week || week < 1) week = 1;
     if (week <= 4) {
       if (day === "Mon") return "Foundation Strength A";
+      if (day === "Tue") return "Tempo Run";
       if (day === "Wed") return "Engine + Mobility";
       if (day === "Fri") return "Foundation Strength B";
       if (day === "Sat") return week === 1 ? "Grip & Carry Test" : "Easy Long Carry";
       return null;
     } else if (week <= 8) {
       if (day === "Mon") return "Strength A";
+      if (day === "Tue") return "Tempo Run";
       if (day === "Wed") return "Compromised Running";
       if (day === "Fri") return "Strength B";
       if (day === "Sat") return [5, 7].includes(week) ? "Engine Intervals" : "Partial Simulation";
       return null;
     } else {
       if (day === "Mon") return "Strength A";
+      if (day === "Tue") return "Tempo Run";
       if (day === "Wed") return "Compromised Running";
       if (day === "Fri") return "Strength B";
       if (day === "Sat") return [9, 11].includes(week) ? "Full Simulation" : "Engine Intervals";
@@ -139,6 +142,17 @@ const WORKOUT_LIBRARY = {
       { name: "Banded Seated Row", sets: "3 x 15" },
       { name: "DB Front-Rack Walking Lunge", sets: "3 x 12/leg" },
       { name: "Renegade Row", sets: "3 x 10/side" }
+    ]
+  },
+  "Tempo Run": {
+    duration: "~30–35 min",
+    note: "Added from Nick Bare's hybrid-training approach: one deliberate quality running day per week, kept distinct from easy volume. Thursday's Kickr day and any other running stay fully easy.",
+    phaseNote: "Phase 3 (weeks 9–12): push interval pace closer to race effort; keep total volume the same.",
+    exercises: [
+      { name: "Warm-up jog", sets: "10 min easy" },
+      { name: "Tempo intervals", sets: "4–6 x 3 min", note: "controlled hard — comfortably-uncomfortable, not all-out" },
+      { name: "Recovery jog", sets: "2 min easy between intervals" },
+      { name: "Cool-down jog", sets: "5–10 min easy" }
     ]
   },
   "Compromised Running": {

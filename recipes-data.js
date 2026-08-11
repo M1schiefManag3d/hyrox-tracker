@@ -65,10 +65,42 @@ const RECIPE_DATA = {
     }
   ],
   breakfasts: [
-    { name: "Greek Yogurt Power Bowl", protein: "~35g", method: "1.5 cups plain Greek yogurt, handful berries, 2 tbsp GF granola or walnuts, drizzle honey." },
-    { name: "Savory Yogurt Bowl", protein: "~30g", method: "Greek yogurt whisked with salt/garlic powder, top with soft-boiled egg, everything bagel seasoning (check GF), cucumber." },
-    { name: "3-Egg Scramble", protein: "~25g", method: "3 eggs, spinach, tomato, dairy-free cheese if desired, side of sourdough toast." },
-    { name: "Sheet-Pan Egg Muffins", protein: "~18g (3 muffins)", method: "Batch-cook Sunday — see Proteins tab." }
+    { name: "Greek Yogurt Power Bowl", protein: "~35g", calories: 380, proteinG: 35, method: "1.5 cups plain Greek yogurt, handful berries, 2 tbsp GF granola or walnuts, drizzle honey." },
+    { name: "Savory Yogurt Bowl", protein: "~30g", calories: 320, proteinG: 30, method: "Greek yogurt whisked with salt/garlic powder, top with soft-boiled egg, everything bagel seasoning (check GF), cucumber." },
+    { name: "3-Egg Scramble", protein: "~25g", calories: 420, proteinG: 25, method: "3 eggs, spinach, tomato, dairy-free cheese if desired, side of sourdough toast." },
+    { name: "Sheet-Pan Egg Muffins", protein: "~18g (3 muffins)", calories: 220, proteinG: 18, method: "Batch-cook Sunday — see Proteins tab." }
+  ],
+  // Rough per-serving macros for the lunch/dinner bowl system (Base + Protein + Veg + Sauce).
+  // Estimates, not lab values — close enough to budget a day against your calorie/protein targets.
+  bowlBases: [
+    { name: "Rice (1 cup cooked)", calories: 205, proteinG: 4 },
+    { name: "Quinoa (1 cup cooked)", calories: 220, proteinG: 8 },
+    { name: "GF Pasta (1 cup cooked)", calories: 200, proteinG: 4 },
+    { name: "Roasted Sweet Potato (1 medium)", calories: 180, proteinG: 4 },
+    { name: "Greens (lower-carb day)", calories: 20, proteinG: 2 }
+  ],
+  bowlProteins: [
+    { name: "Chicken Thighs (6oz)", calories: 330, proteinG: 42 },
+    { name: "Ground Turkey/Beef (6oz)", calories: 340, proteinG: 38 },
+    { name: "Baked Salmon (6oz)", calories: 350, proteinG: 36 },
+    { name: "Tuna or Chickpeas (zero-cook)", calories: 220, proteinG: 30 }
+  ],
+  bowlVeg: { name: "Veg (whatever's fast)", calories: 50, proteinG: 2 },
+  sauceMacros: {
+    "Lemon-Tahini Sauce": { calories: 110, proteinG: 3 },
+    "Peanut-Lime Sauce": { calories: 120, proteinG: 4 },
+    "Chimichurri": { calories: 90, proteinG: 0 },
+    "Greek Yogurt Ranch-Style": { calories: 60, proteinG: 6 },
+    "Simple Vinaigrette": { calories: 120, proteinG: 0 }
+  },
+  snacks: [
+    { name: "Smart Pop Popcorn (1 bag)", calories: 120, proteinG: 3, note: "One of the better packaged snacks — big volume, low calorie density, some fiber. Fine as one bag most days." },
+    { name: "Dried Mango (1/3 cup)", calories: 130, proteinG: 1, note: "Concentrated sugar with almost no fiber or protein for the calories — easy to eat two servings without feeling full. The highest-leverage swap if snacking is what's blowing the deficit." },
+    { name: "Greek Yogurt + Berries", calories: 150, proteinG: 15, note: "Similar sweet craving to dried mango, way more protein and fullness per calorie — the direct swap." },
+    { name: "Hard-Boiled Eggs (2)", calories: 140, proteinG: 12 },
+    { name: "Handful Almonds (1oz)", calories: 165, proteinG: 6 },
+    { name: "Rice Cakes + Peanut Butter", calories: 190, proteinG: 6 },
+    { name: "GF Protein Bar", calories: 200, proteinG: 20 }
   ],
   groceryList: {
     "Protein": ["Kirkland boneless skinless chicken thighs", "Kirkland ground turkey or beef", "Costco fresh/frozen salmon portions", "Costco 24-pack eggs", "Kirkland plain Greek yogurt (large tub)", "Kirkland canned tuna / chickpeas"],

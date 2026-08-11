@@ -59,6 +59,7 @@ function showView(name) {
   });
   document.querySelectorAll(".tabbtn").forEach(b => b.classList.toggle("active", b.dataset.view === name));
   document.getElementById("pageTitle").textContent = titles[name];
+  document.getElementById("views").scrollTop = 0;
   if (name === "dashboard") renderDashboard();
   if (name === "workouts") renderWorkouts();
   if (name === "nutrition") renderNutrition();
@@ -263,6 +264,83 @@ function openWorkoutModal(id) {
 
 /* ---------- Nutrition ---------- */
 
+// Deterministic day-of-year rotation so the suggested meals change day to day
+// without needing any stored state.
+function dayRotationIndex() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now - start) / 86400000);
+}
+
+function buildTodayMeals() {
+  const idx = dayRotationIndex();
+  const breakfast = RECIPE_DATA.breakfasts[idx % RECIPE_DATA.breakfasts.length];
+
+  const lunchBase = RECIPE_DATA.bowlBases[idx % RECIPE_DATA.bowlBases.length];
+  const lunchProtein = RECIPE_DATA.bowlProteins[idx % RECIPE_DATA.bowlProteins.length];
+  const sauceNames = Object.keys(RECIPE_DATA.sauceMacros);
+  const lunchSauceName = sauceNames[idx % sauceNames.length];
+  const lunchSauce = RECIPE_DATA.sauceMacros[lunchSauceName];
+  const veg = RECIPE_DATA.bowlVeg;
+
+  const dinnerProtein = RECIPE_DATA.bowlProteins[(idx + 2) % RECIPE_DATA.bowlProteins.length];
+  const dinnerBase = RECIPE_DATA.bowlBases[(idx + 2) % RECIPE_DATA.bowlBases.length];
+
+  const lunch = {
+    label: `${lunchBase.name} + ${lunchProtein.name} + Veg + ${lunchSauceName}`,
+    calories: lunchBase.calories + lunchProtein.calories + veg.calories + lunchSauce.calories,
+    proteinG: lunchBase.proteinG + lunchProtein.proteinG + veg.proteinG + lunchSauce.proteinG
+  };
+  const dinner = {
+    label: `${dinnerProtein.name} + ${dinnerBase.name} (smaller portion) + Veg`,
+    calories: dinnerProtein.calories + Math.round(dinnerBase.calories * 0.6) + veg.calories,
+    proteinG: dinnerProtein.proteinG + Math.round(dinnerBase.proteinG * 0.6) + veg.proteinG
+  };
+
+  const meals = [
+    { label: breakfast.name, calories: breakfast.calories, proteinG: breakfast.proteinG },
+    lunch,
+    dinner
+  ];
+  const mealsCalories = meals.reduce((s, m) => s + m.calories, 0);
+  const mealsProtein = meals.reduce((s, m) => s + m.proteinG, 0);
+
+  return { meals, mealsCalories, mealsProtein };
+}
+
+function renderMealPlan() {
+  const target = calorieTarget();
+  const proteinT = proteinTarget();
+  const { meals, mealsCalories, mealsProtein } = buildTodayMeals();
+  const snackBudget = Math.max(0, target - mealsCalories);
+  const proteinGap = Math.max(0, proteinT - mealsProtein);
+
+  const mealRows = meals.map(m => `
+    <div class="exercise-row">
+      <span class="exercise-name">${m.label}</span>
+      <span class="exercise-sets">${m.calories} kcal</span>
+      <span class="exercise-note">${m.proteinG}g protein</span>
+    </div>`).join("");
+
+  const sortedSnacks = [...RECIPE_DATA.snacks].sort((a, b) => a.calories - b.calories);
+  const snackRows = sortedSnacks.map(s => `
+    <div class="exercise-row">
+      <span class="exercise-name">${s.name}${s.calories <= snackBudget ? "" : " (over budget today)"}</span>
+      <span class="exercise-sets">${s.calories} kcal</span>
+      <span class="exercise-note">${s.proteinG}g protein${s.note ? " — " + s.note : ""}</span>
+    </div>`).join("");
+
+  document.getElementById("mealPlanCard").innerHTML = `
+    <h2>Today's Meals</h2>
+    <div class="exercise-list">${mealRows}</div>
+    <p class="hint" style="margin-top:10px">Meals subtotal: <strong>${mealsCalories} kcal · ${mealsProtein}g protein</strong></p>
+    <div class="divider"></div>
+    <p class="hint" style="margin-bottom:8px"><strong>Snack budget left: ${snackBudget} kcal</strong>${proteinGap > 0 ? ` · aim for ${proteinGap}g more protein from snacks to hit target` : " · protein target already covered by meals"}</p>
+    <div class="exercise-list">${snackRows}</div>
+    <p class="hint" style="margin-top:10px">Dried mango is the one worth swapping or capping at one serving — it's sugar-dense with almost no protein or fiber, so it eats into the budget without much fullness. Smart Pop is genuinely one of the better packaged snacks (big volume, low calorie density) — a bag most days is fine.</p>
+  `;
+}
+
 function renderNutrition() {
   document.getElementById("nutritionTargets").innerHTML = `
     <h2>Targets</h2>
@@ -272,6 +350,8 @@ function renderNutrition() {
     </div>
     <p class="hint">Based on ${DATA.setup.bodyweight} lb bodyweight and ${DATA.setup.maintenance} kcal maintenance. Update in Settings.</p>
   `;
+
+  renderMealPlan();
 
   const list = [...DATA.nutrition].sort((a, b) => b.date.localeCompare(a.date));
   document.getElementById("nutritionList").innerHTML = list.length

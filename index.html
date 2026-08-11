@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Hyrox Tracker</title>
+<meta name="theme-color" content="#1f4e5f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Hyrox" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <header class="topbar">
+    <h1 id="pageTitle">Dashboard</h1>
+    <button id="syncBtn" class="icon-btn" title="Sync">⇅</button>
+  </header>
+
+  <main id="views">
+
+    <!-- DASHBOARD -->
+    <section class="view" id="view-dashboard">
+      <div class="card-grid" id="dashCards"></div>
+
+      <div class="card">
+        <h2>This Week</h2>
+        <div id="weekSchedule" class="week-schedule"></div>
+      </div>
+
+      <div class="card">
+        <h2>Recent Sim Times</h2>
+        <div id="recentSims" class="table-scroll"></div>
+      </div>
+    </section>
+
+    <!-- WORKOUTS -->
+    <section class="view hidden" id="view-workouts">
+      <button class="btn-primary full-width" id="addWorkoutBtn">+ Log Workout</button>
+      <div id="workoutList" class="log-list"></div>
+    </section>
+
+    <!-- NUTRITION -->
+    <section class="view hidden" id="view-nutrition">
+      <div class="card" id="nutritionTargets"></div>
+      <button class="btn-primary full-width" id="addNutritionBtn">+ Log Day</button>
+      <div id="nutritionList" class="log-list"></div>
+    </section>
+
+    <!-- SIM TIMES -->
+    <section class="view hidden" id="view-sims">
+      <button class="btn-primary full-width" id="addSimBtn">+ Log Simulation</button>
+      <div id="simList" class="log-list"></div>
+    </section>
+
+    <!-- RECIPES -->
+    <section class="view hidden" id="view-recipes">
+      <div class="tab-strip" id="recipeTabs">
+        <button class="tab-pill active" data-recipe-tab="sauces">Sauces</button>
+        <button class="tab-pill" data-recipe-tab="proteins">Proteins</button>
+        <button class="tab-pill" data-recipe-tab="breakfasts">Breakfast</button>
+        <button class="tab-pill" data-recipe-tab="grocery">Grocery</button>
+      </div>
+      <div id="recipeContent"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view hidden" id="view-settings">
+      <div class="card">
+        <h2>Setup</h2>
+        <label>Current Bodyweight (lb)
+          <input type="number" id="setupWeight" inputmode="decimal" />
+        </label>
+        <label>Estimated Maintenance Calories
+          <input type="number" id="setupMaintenance" inputmode="numeric" />
+        </label>
+        <label>Hyrox Race Date
+          <input type="date" id="setupRaceDate" />
+        </label>
+        <p class="hint" id="setupCalc"></p>
+        <button class="btn-primary full-width" id="saveSetupBtn">Save</button>
+      </div>
+
+      <div class="card">
+        <h2>Sync &amp; Backup</h2>
+        <p class="hint">This app stores data on this device. Use the buttons below to keep your iPhone and Mac in sync via a file in your iCloud Health folder.</p>
+        <button class="btn-secondary full-width" id="fsSaveBtn">Save to iCloud file (Mac)</button>
+        <button class="btn-secondary full-width" id="fsLoadBtn">Load from iCloud file (Mac)</button>
+        <div class="divider"></div>
+        <button class="btn-secondary full-width" id="exportBtn">Export JSON (Share/Save to Files)</button>
+        <label class="btn-secondary full-width file-label" for="importInput">Import JSON</label>
+        <input type="file" id="importInput" accept="application/json" hidden />
+        <p class="hint" id="syncStatus"></p>
+      </div>
+
+      <div class="card">
+        <h2>About</h2>
+        <p class="hint">Hyrox Training Tracker — built from Shannon's 12-week plan. Data is yours; nothing leaves this device except when you explicitly export or sync.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <button class="tabbtn active" data-view="dashboard"><span>🏠</span>Home</button>
+    <button class="tabbtn" data-view="workouts"><span>🏋️</span>Workouts</button>
+    <button class="tabbtn" data-view="nutrition"><span>🍽️</span>Nutrition</button>
+    <button class="tabbtn" data-view="sims"><span>⏱️</span>Sims</button>
+    <button class="tabbtn" data-view="recipes"><span>📖</span>Recipes</button>
+    <button class="tabbtn" data-view="settings"><span>⚙️</span>Settings</button>
+  </nav>
+
+</div>
+
+<!-- Generic modal for add/edit forms -->
+<div id="modalOverlay" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Log</h3>
+      <button id="modalClose" class="icon-btn">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modalDelete" style="display:none">Delete</button>
+      <button class="btn-primary" id="modalSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="recipes-data.js"></script>
+<script src="training-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

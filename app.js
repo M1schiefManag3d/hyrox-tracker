@@ -121,12 +121,23 @@ function renderDashboard() {
     </div>`).join("");
 
   const phase = pw ? pw.phase : TRAINING_DATA.phases[0];
+  const phaseNum = TRAINING_DATA.phases.indexOf(phase) + 1;
+  const week = pw ? pw.week : 1;
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const todayName = dayNames[new Date().getDay()];
+
   document.getElementById("weekSchedule").innerHTML = Object.entries(phase.week).map(([day, session]) => `
     <div class="week-row ${day === todayName ? 'today' : ''}">
       <span class="day">${day}</span><span>${session}</span>
     </div>`).join("");
+
+  const todayKey = TRAINING_DATA.resolveSessionKey(todayName, week);
+  const todayLabel = phase.week[todayName] || "Rest";
+  document.getElementById("todaySessionCard").innerHTML = `
+    <h2>Today — ${todayName}${pw ? "" : " (set a race date in Settings for a phase-accurate plan)"}</h2>
+    <div style="font-size:17px;font-weight:600;margin-bottom:10px">${todayKey || todayLabel}</div>
+    ${renderExerciseListHTML(todayKey, phaseNum)}
+  `;
 
   const recentSims = [...DATA.sims].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   if (recentSims.length === 0) {
@@ -136,6 +147,31 @@ function renderDashboard() {
       <table><thead><tr><th>Date</th><th>Total (min)</th><th>Notes</th></tr></thead>
       <tbody>${recentSims.map(s => `<tr><td>${fmtDate(s.date)}</td><td>${simTotal(s).toFixed(1)}</td><td>${s.notes || ""}</td></tr>`).join("")}</tbody></table>`;
   }
+}
+
+/* ---------- Exercise prescriptions ---------- */
+
+// Returns HTML for the exercises/sets/reps prescribed for a given session type key.
+// phaseNumber (1/2/3) is used only to decide whether to surface the Phase 3 note.
+function renderExerciseListHTML(key, phaseNumber) {
+  const lib = WORKOUT_LIBRARY[key];
+  if (!lib) {
+    return `<p class="hint">No fixed prescription for this session — follow your existing routine.</p>`;
+  }
+  const meta = [lib.duration, lib.rpe ? "RPE " + lib.rpe : null].filter(Boolean).join(" · ");
+  const rows = lib.exercises.map(ex => `
+    <div class="exercise-row">
+      <span class="exercise-name">${ex.name}</span>
+      <span class="exercise-sets">${ex.sets}</span>
+      ${ex.note ? `<span class="exercise-note">${ex.note}</span>` : ""}
+    </div>`).join("");
+  const note = lib.note ? `<p class="hint" style="margin-top:8px">${lib.note}</p>` : "";
+  const phaseNote = (lib.phaseNote && phaseNumber === 3) ? `<p class="hint" style="margin-top:8px;color:var(--accent)">${lib.phaseNote}</p>` : "";
+  return `
+    ${meta ? `<p class="hint" style="margin-bottom:8px">${meta}</p>` : ""}
+    <div class="exercise-list">${rows}</div>
+    ${note}${phaseNote}
+  `;
 }
 
 function simTotal(s) {
@@ -167,10 +203,14 @@ function openWorkoutModal(id) {
   const existing = id ? DATA.workouts.find(w => w.id === id) : null;
   const d = existing || { date: todayISO(), session: TRAINING_DATA.sessionTypes[0], completed: true, rpe: "", duration: "", notes: "" };
 
+  const pw = currentPhaseAndWeek();
+  const phaseNum = pw ? TRAINING_DATA.phases.indexOf(pw.phase) + 1 : 1;
+
   document.getElementById("modalTitle").textContent = existing ? "Edit Workout" : "Log Workout";
   document.getElementById("modalBody").innerHTML = `
     <label>Date <input type="date" id="f-date" value="${d.date}"></label>
     <label>Session <select id="f-session">${TRAINING_DATA.sessionTypes.map(s => `<option ${s === d.session ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+    <div class="card" id="sessionReference" style="margin-bottom:14px"></div>
     <label>Completed?
       <select id="f-completed">
         <option value="true" ${d.completed ? "selected" : ""}>Yes</option>
@@ -181,6 +221,16 @@ function openWorkoutModal(id) {
     <label>Duration (min) <input type="number" id="f-duration" value="${d.duration}"></label>
     <label>Notes <textarea id="f-notes">${d.notes || ""}</textarea></label>
   `;
+
+  const refreshReference = () => {
+    const session = document.getElementById("f-session").value;
+    document.getElementById("sessionReference").innerHTML = `
+      <h2>What to do</h2>
+      ${renderExerciseListHTML(session, phaseNum)}
+    `;
+  };
+  refreshReference();
+  document.getElementById("f-session").addEventListener("change", refreshReference);
 
   document.getElementById("modalDelete").style.display = existing ? "block" : "none";
   showModal(() => {

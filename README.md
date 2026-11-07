@@ -89,6 +89,8 @@ json
   "nutrition": [{ "id": "...", "date": "YYYY-MM-DD", "calories": "", "protein": "", "carbs": "", "fat": "", "bodyweight": "", "notes": "" }],
   "sims":      [{ "id": "...", "date": "YYYY-MM-DD", "run": "", "skierg": "", "sledPush": "", "sledPull": "", "burpee": "", "row": "", "farmers": "", "lunges": "", "wallball": "", "notes": "" }]
 }
+
+
 Project structure
 hyrox-tracker/
 ├── index.html          # App shell: six views, tab bar, shared modal
@@ -99,11 +101,13 @@ hyrox-tracker/
 ├── service-worker.js   # Offline caching
 ├── manifest.json       # PWA metadata and icons
 └── icon-192.png / icon-512.png / apple-touch-icon.png
+
 Customizing
 Change the plan: edit phases, sessionTypes and resolveSessionKey() in training-data.js, and the exercise prescriptions in WORKOUT_LIBRARY. Every resolveSessionKey() return value needs a matching WORKOUT_LIBRARY key.
 Change the targets: proteinTarget() and calorieTarget() sit near the top of app.js. The same −350 kcal deficit is also hard-coded in updateSetupCalc().
 Change food: edit recipes-data.js. The meal rotation reads from breakfasts, bowlBases, bowlProteins, bowlVeg, sauceMacros and snacks.
 Ship an update: bump CACHE_NAME in service-worker.js (e.g. hyrox-tracker-v2) whenever you change files. The worker serves the cache first, so an installed app shows the old version until it reloads once more after the update.
+
 Known issues
 Default log date can be off by a day. todayISO() uses UTC, so in the evening in Pacific time new entries default to tomorrow's date. A fix is to build the date from local time (getFullYear(), getMonth(), getDate()).
 Training Week card subtitle. The phase-name replace() concatenates indexOf(...) + 1 as a string ("Phase 01 — "), so the full phase name shows instead of the shortened one.
